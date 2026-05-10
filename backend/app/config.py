@@ -12,5 +12,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        protected_namespaces = ("settings_",)   # ← add this line
 
 settings = Settings()

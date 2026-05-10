@@ -1,0 +1,148 @@
+fitai/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── routers/
+│   │   │   ├── __init__.py
+│   │   │   ├── stream.py
+│   │   │   └── analysis.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── pose_engine.py
+│   │   │   ├── form_analyser.py
+│   │   │   └── feedback.py
+│   │   └── models/
+│   │       ├── __init__.py
+│   │       └── schemas.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Camera.tsx
+│   │   │   ├── VideoUpload.tsx
+│   │   │   └── FeedbackOverlay.tsx
+│   │   ├── hooks/
+│   │   │   └── useWebSocket.ts
+│   │   ├── types/
+│   │   │   └── index.ts
+│   │   └── App.tsx
+│   └── package.json
+├── ml/
+│   ├── training/
+│   │   ├── dataset_builder.py
+│   │   └── train_form_model.py
+│   └── models/          ← saved model files go here
+└── docker-compose.yml
+
+# 1. Create project root
+mkdir fitai && cd fitai
+
+# 2. Backend Python env
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 3. Frontend scaffold
+cd ../frontend
+npm create vite@latest . -- --template react-ts
+npm install
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+websockets==12.0
+opencv-python-headless==4.9.0.80
+mediapipe==0.10.14
+numpy==1.26.4
+tensorflow==2.16.1
+Pillow==10.3.0
+python-multipart==0.0.9
+pydantic==2.7.1
+pydantic-settings==2.2.1
+sqlalchemy==2.0.30
+asyncpg==0.29.0
+redis==5.0.4
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+ultralytics==8.2.0
+deepface==0.0.93
+
+Phase 2 + 3 — Video analysis pipeline & sport detection
+Phase 2 wires the full upload-to-analysis pipeline with per-rep segmentation. Phase 3 adds YOLOv8-based sport detection that auto-identifies the exercise before form analysis runs.
+
+backend/app/services/
+  ├── rep_segmenter.py       ← NEW (P2)
+  ├── video_processor.py     ← NEW (P2)
+  └── sport_detector.py      ← NEW (P3)
+
+backend/app/routers/
+  └── analysis.py            ← REPLACE existing
+
+frontend/src/components/
+  ├── VideoUpload.tsx         ← NEW (P2)
+  └── RepTimeline.tsx         ← NEW (P2)
+
+frontend/src/hooks/
+  └── useVideoAnalysis.ts     ← NEW (P2)
+
+frontend/src/App.tsx           ← REPLACE existing
+
+cd fitai/backend
+source venv/bin/activate
+python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+# Downloads ~6MB to ~/.config/Ultralytics/
+
+ml/
+├── training/
+│   ├── dataset_builder.py          ← P4: extract pose sequences from labeled videos
+│   ├── pose_sequence_model.py      ← P4: LSTM + CNN hybrid architecture
+│   ├── train_form_classifier.py    ← P4: training script
+│   └── export_model.py             ← P4: TFLite / ONNX export
+backend/app/services/
+│   ├── model_loader.py             ← P4: swap heuristics ↔ trained model
+│   ├── sport_catalogue.py          ← P5: rules for 12+ sports
+│   ├── motion_classifier.py        ← P5: temporal motion pattern analysis
+│   ├── emotion_engine.py           ← P6: DeepFace + mood scoring
+│   └── session_tracker.py          ← P6: mood × performance correlation
+backend/app/routers/
+│   ├── sports.py                   ← P5
+│   └── emotion.py                  ← P6
+frontend/src/components/
+│   ├── SportSelector.tsx           ← P5
+│   ├── EmotionOverlay.tsx          ← P6
+│   └── MoodDashboard.tsx           ← P6
+frontend/src/hooks/
+│   └── useEmotionStream.ts         ← P6
+
+cd fitai/ml/training
+
+cd fitai
+source backend/venv/bin/activate
+
+python ml/training/dataset_builder.py \
+  --input_dir "C:/Users/YOU/Downloads/workout-dataset" \
+  --output_dir ml/data
+
+cd ml/training
+
+python train_form_classifier.py \
+  --dataset ../data/dataset.pkl \
+  --output_dir ../models \
+  --epochs 80 \
+  --batch_size 32
+
+# New terminal
+tensorboard --logdir ml/models/logs
+# Open http://localhost:6006
+
+python ml/training/export_model.py \
+  --model ml/models/form_classifier.keras \
+  --output_dir ml/models
+
+
+PhaseCapability1FastAPI + MediaPipe real-time pose over WebSocket2Video upload → per-rep segmentation → scored timeline with thumbnails3YOLOv8 equipment detection + pose heuristics for auto exercise identification4CNN-LSTM trained on your own data, TFLite export, seamless model swap514-sport catalogue with per-sport angle rules, motion velocity classifier6DeepFace emotion detection, music BPM recommendation, mood × form correlation dashboard
+
+
+
+

@@ -1,4 +1,5 @@
-export type Exercise = "deadlift" | "squat" | "bench_press" | "unknown";
+// Exercise is now a plain string — driven by backend catalogue
+export type Exercise = string;
 
 export interface JointAngle {
   name: string;
@@ -16,5 +17,17 @@ export interface FormFeedback {
   errors: string[];
   warnings: string[];
   score: number;
-  annotated_frame?: string; // base64 jpeg
+  annotated_frame?: string;
+}
+
+export interface Sport {
+  key: string;
+  label: string;
+  cues: string[];
+}
+
+export interface DetectedExercise {
+  exercise: Exercise;
+  exercise_confidence: number;
+  quality_score: number;
 }
