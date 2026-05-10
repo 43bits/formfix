@@ -10,6 +10,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+ml/data/
+*.pkl
 # package managers lock files (optional - keep if your team uses lockfiles)
 # package-lock.json
 # yarn.lock

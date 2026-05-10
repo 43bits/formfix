@@ -16,7 +16,7 @@ export function Camera({ exercise, onAutoDetect, onCanvasReady }: Props) {
   const [camError, setCamError] = useState<string | null>(null);
   const [hasAnnotated, setHasAnnotated] = useState(false);
 
-  const { feedback, connected, detectedExercise, wsError, sendFrame } =
+  const { feedback, connected, detectedExercise, wsError, sendFrame, modelConfidence } =
     useWorkoutStream(exercise, onAutoDetect);
 
   // Start webcam → draw raw feed to display canvas
@@ -154,16 +154,25 @@ export function Camera({ exercise, onAutoDetect, onCanvasReady }: Props) {
       </div>
 
       {/* Auto-detected exercise */}
-      {detectedExercise && exercise === "unknown" && (
-        <div style={{
-          position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
-          background: "rgba(79,70,229,0.85)", color: "#fff",
-          padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 500,
-          whiteSpace: "nowrap",
-        }}>
-          Detected: {detectedExercise.replace(/_/g, " ")}
-        </div>
-      )}
+     // Replace the detection badge in Camera.tsx
+{detectedExercise && exercise === "unknown" && (
+  <div style={{
+    position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
+    background: "rgba(79,70,229,0.88)", color: "#fff",
+    padding: "4px 14px", borderRadius: 20, fontSize: 12, fontWeight: 500,
+    whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6,
+  }}>
+    <span>Detected: {detectedExercise.replace(/_/g, " ")}</span>
+    {modelConfidence > 0 && (
+      <span style={{
+        background: "rgba(255,255,255,0.25)",
+        padding: "1px 6px", borderRadius: 10, fontSize: 10,
+      }}>
+        {(modelConfidence * 100).toFixed(0)}%
+      </span>
+    )}
+  </div>
+)}
 
       {/* Rep + score HUD */}
       {feedback && (
