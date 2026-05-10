@@ -188,7 +188,7 @@ export default function App() {
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>FitAI</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>Formfix</h1>
           <span style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>
             Real-time form correction · injury prevention
           </span>

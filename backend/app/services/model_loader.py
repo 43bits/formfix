@@ -125,25 +125,63 @@ class ModelLoader:
 
     # ── Internals ─────────────────────────────────────────────────────────────
 
+    # def _load(self):
+    #     onnx_path = os.path.join(settings.model_dir, "form_classifier.onnx")
+    #     if not os.path.exists(onnx_path):
+    #         print(f"[ModelLoader] No model at {onnx_path} — heuristic mode")
+    #         return
+    #     try:
+    #         import onnxruntime as ort
+    #         opts = ort.SessionOptions()
+    #         opts.intra_op_num_threads = 2
+    #         opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+    #         self._session = ort.InferenceSession(
+    #             onnx_path,
+    #             sess_options=opts,
+    #             providers=["CPUExecutionProvider"],
+    #         )
+    #         self._mode = "onnx"
+    #         print(f"[ModelLoader] Loaded {onnx_path}")
+    #         print(f"[ModelLoader] Input: {self._session.get_inputs()[0].shape}")
+    #         print(f"[ModelLoader] Classes: {len(EXERCISE_NAMES)}")
+    #     except Exception as e:
+    #         print(f"[ModelLoader] Load failed: {e}")
+    
     def _load(self):
-        onnx_path = os.path.join(settings.model_dir, "form_classifier.onnx")
-        if not os.path.exists(onnx_path):
+        from pathlib import Path
+
+        # BASE_DIR = Path(__file__).resolve().parent.parent.parent
+        BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+        onnx_path = BASE_DIR / "ml" / "models" / "form_classifier.onnx"
+
+        print(f"[ModelLoader] Looking for model at: {onnx_path}")
+
+        if not onnx_path.exists():
             print(f"[ModelLoader] No model at {onnx_path} — heuristic mode")
             return
+
         try:
-            import onnxruntime as ort
+            import onnxruntime as ort # type: ignore
+
             opts = ort.SessionOptions()
             opts.intra_op_num_threads = 2
-            opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+            opts.graph_optimization_level = (
+                ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+            )
+
             self._session = ort.InferenceSession(
-                onnx_path,
+                str(onnx_path),
                 sess_options=opts,
                 providers=["CPUExecutionProvider"],
             )
+
             self._mode = "onnx"
-            print(f"[ModelLoader] Loaded {onnx_path}")
-            print(f"[ModelLoader] Input: {self._session.get_inputs()[0].shape}")
+
+            print(f"[ModelLoader] Loaded model successfully")
+            print(f"[ModelLoader] Path: {onnx_path}")
+            print(f"[ModelLoader] Input Shape: {self._session.get_inputs()[0].shape}")
             print(f"[ModelLoader] Classes: {len(EXERCISE_NAMES)}")
+
         except Exception as e:
             print(f"[ModelLoader] Load failed: {e}")
 

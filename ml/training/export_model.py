@@ -86,9 +86,9 @@ FEATURE_DIM     = 48
 def to_onnx(model, output_path: str):
     """Primary export — used by the server's onnxruntime loader."""
     try:
-        import tf2onnx
+        import tf2onnx # type: ignore
         import tensorflow as tf
-        import onnx
+        import onnx # type: ignore
 
         spec = (tf.TensorSpec((None, SEQUENCE_LENGTH, FEATURE_DIM),
                                tf.float32, name="pose_sequence"),)
@@ -103,7 +103,7 @@ def to_onnx(model, output_path: str):
         print(f"ONNX exported → {output_path}  ({size_kb:.0f} KB)")
 
         # Quick inference test
-        import onnxruntime as ort
+        import onnxruntime as ort # type: ignore
         sess = ort.InferenceSession(output_path,
                                     providers=["CPUExecutionProvider"])
         dummy = np.random.randn(1, SEQUENCE_LENGTH, FEATURE_DIM).astype(np.float32)

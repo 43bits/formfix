@@ -35,7 +35,7 @@ export default function CalendarScreen() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.scroll}>
-      <Text style={styles.title}>VisionAI</Text>
+      <Text style={styles.title}>FormFix</Text>
 
       {/* Month header */}
       <View style={styles.monthRow}>

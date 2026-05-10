@@ -9,13 +9,20 @@ import { WS_BASE } from '../constants/api';
 const WS_URL = `${WS_BASE}/ws/stream`;
 // remove the old hardcoded const WS_URL line
 
+// interface StreamMessage {
+//   feedback?: FormFeedback;
+//   annotated_frame?: string;
+//   detected_exercise?: string;
+//   error?: string;
+// }
+
 interface StreamMessage {
   feedback?: FormFeedback;
   annotated_frame?: string;
   detected_exercise?: string;
+  model_confidence?: number;  // ← add
   error?: string;
 }
-
 
 export function useWorkoutStream(
   exercise: string,
@@ -29,6 +36,7 @@ export function useWorkoutStream(
   const [detectedExercise,  setDetectedExercise ] = useState<string | null>(null);
   const [wsError,           setWsError          ] = useState<string | null>(null);
 const [repCount, setRepCount] = useState(0);
+const [modelConfidence, setModelConfidence] = useState(0);
 
   useEffect(() => {
     const connect = () => {
@@ -59,7 +67,10 @@ const [repCount, setRepCount] = useState(0);
     //   };
     socket.onmessage = (e) => {
   try {
+    
     const data: StreamMessage = JSON.parse(e.data);
+    if (data.model_confidence !== undefined) setModelConfidence(data.model_confidence);
+
     if (data.error) return;
     if (data.feedback) {
       setFeedback({ ...data.feedback, annotated_frame: data.annotated_frame });
@@ -98,5 +109,5 @@ const [repCount, setRepCount] = useState(0);
     [exercise]
   );
   useEffect(() => { setRepCount(0); }, [exercise]);
-  return { feedback, connected, detectedExercise, wsError, sendFrameB64,repCount };
+  return { feedback, connected, detectedExercise, wsError, sendFrameB64,repCount, modelConfidence };
 }

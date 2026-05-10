@@ -28,6 +28,7 @@ export default function CameraScreen() {
   // const [permission, requestPermission] = useCameraPermissions();
 const [micPermission, requestMicPermission] =
   useMicrophonePermissions();
+  
 
 
   const [exercise,       setExercise      ] = useState('unknown');
@@ -41,8 +42,12 @@ const [micPermission, requestMicPermission] =
   const wsLoopRef   = useRef(false);
   const wsTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { feedback, connected, wsError, sendFrameB64, detectedExercise, repCount } =
-    useWorkoutStream(exercise, (ex) => setExercise(ex));
+  // const { feedback, connected, wsError, sendFrameB64, detectedExercise, repCount } =
+    // useWorkoutStream(exercise, (ex) => setExercise(ex));
+
+  const { feedback, connected, wsError, sendFrameB64,
+        detectedExercise, repCount, modelConfidence } =
+  useWorkoutStream(exercise, (ex) => setExercise(ex));
 
   const { analyse, loading: analysing } = useVideoAnalysis();
   const { setPending, addSession }      = useSessionStore();
@@ -313,12 +318,45 @@ const [micPermission, requestMicPermission] =
           <Text style={s.iconTxt}>⟳</Text>
         </TouchableOpacity>
 
-        <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>VisionAI</Text>
+        {/* <View style={s.headerCenter}>
+          <Text style={s.headerTitle}>fofo</Text>
           <Text style={[s.headerSub, { color: connected ? Colors.accent : Colors.warn }]}>
             {isRecording ? '● REC' : isStreaming ? '● LIVE' : connected ? '○ Ready' : '✕ Offline'}
           </Text>
-        </View>
+        </View> */}
+
+        <View style={s.headerCenter}>
+  <Text style={s.headerTitle}>Formfix</Text>
+
+  <Text
+    style={[
+      s.headerSub,
+      {
+        color: isRecording
+          ? Colors.danger
+          : connected
+          ? Colors.accent
+          : Colors.warn,
+      },
+    ]}
+  >
+    {isRecording
+      ? '● REC'
+      : isStreaming
+      ? connected
+        ? modelConfidence === 0
+          ? '○ Buffering...'
+          : `● LIVE ${(modelConfidence * 100).toFixed(0)}%`
+        : wsError
+        ? '✕ Offline'
+        : '○ Connecting'
+      : connected
+      ? '○ Ready'
+      : wsError
+      ? '✕ Offline'
+      : '○ Connecting'}
+  </Text>
+</View>
 
         <View style={s.iconBtn} />
       </View>
@@ -383,7 +421,8 @@ const [micPermission, requestMicPermission] =
         <TouchableOpacity
           style={[s.recBtn, isRecording && s.recBtnActive]}
           onPress={isRecording ? stopRecording : startRecording}
-          disabled={mode === 'analysing'}
+          // disabled={mode === 'analysing'}
+          disabled={analysing}
         >
           <View style={[s.recInner, isRecording && s.recInnerActive]} />
         </TouchableOpacity>
@@ -435,11 +474,25 @@ const s = StyleSheet.create({
   },
   errorText: { color: Colors.text, fontSize: Font.sizes.sm, fontWeight: Font.weight.semi },
 
+  // controls: {
+  //   position: 'absolute', bottom: 100, left: 0, right: 0,
+  //   flexDirection: 'row', alignItems: 'center',
+  //   justifyContent: 'space-around', paddingHorizontal: Space.xl,
+  // },
   controls: {
-    position: 'absolute', bottom: 100, left: 0, right: 0,
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-around', paddingHorizontal: Space.xl,
+  position: 'absolute',
+  bottom: Platform.OS === 'ios' ? 35 : 20, 
+  left: 0,
+  right: 0,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-around',
+  paddingHorizontal: Space.xl,
+  zIndex: 20,
+  
   },
+  
+  
   recBtn: {
     width: 72, height: 72, borderRadius: 36,
     borderWidth: 3, borderColor: Colors.text,

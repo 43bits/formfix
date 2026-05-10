@@ -3,10 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { WorkoutSession, AnalysisSummary } from '../types';
 
 const STORAGE_KEY = '@visionai_sessions_v1';
-const KEY = 'visionai_sessions'; // ✅ this lin
+const KEY = 'visionai_sessions'; 
 interface SessionStore {
   sessions:     WorkoutSession[];
-  pending:      AnalysisSummary | null;   // set before navigating to /analysis
+  pending:      AnalysisSummary | null;   
   hydrated:     boolean;
 
   // actions

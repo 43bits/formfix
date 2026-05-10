@@ -154,7 +154,7 @@ export function Camera({ exercise, onAutoDetect, onCanvasReady }: Props) {
       </div>
 
       {/* Auto-detected exercise */}
-     // Replace the detection badge in Camera.tsx
+     {/* // Replace the detection badge in Camera.tsx */}
 {detectedExercise && exercise === "unknown" && (
   <div style={{
     position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
