@@ -21,7 +21,7 @@ ml/data/
 .env
 .env.*
 !.env.example
-VisionAI_Build_Guide.md
+
 # IDE folders
 .vscode/
 .idea/
@@ -154,3 +154,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+
+VisionAI_Build_Guide.md
