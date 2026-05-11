@@ -21,7 +21,7 @@ ml/data/
 .env
 .env.*
 !.env.example
-
+VisionAI_Build_Guide.md
 # IDE folders
 .vscode/
 .idea/

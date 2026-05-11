@@ -324,15 +324,37 @@ PULLING_EXERCISES = {
 
 
 class FormAnalyser:
+    # def __init__(self, engine: PoseEngine, exercise: str = "unknown"):
+    #     self.engine   = engine
+    #     self.exercise = exercise
+    #     self._rep_counter = RepCounter(exercise)
+
+    # def set_exercise(self, exercise: str):
+    #     if exercise != self.exercise:
+    #         self.exercise = exercise
+    #         self._rep_counter.set_exercise(exercise)
     def __init__(self, engine: PoseEngine, exercise: str = "unknown"):
-        self.engine   = engine
-        self.exercise = exercise
+        self.engine    = engine
+        self.exercise  = exercise
         self._rep_counter = RepCounter(exercise)
+    # Lock-in: once confirmed, don't reset on every frame
+        self._exercise_lock  = False
+        self._lock_threshold = 8   # frames with same prediction before locking
 
     def set_exercise(self, exercise: str):
-        if exercise != self.exercise:
-            self.exercise = exercise
-            self._rep_counter.set_exercise(exercise)
+        """
+        Only resets the rep counter when exercise changes AND isn't locked.
+        Once locked, ignores further changes from auto-detection noise.
+        """
+        if exercise == self.exercise:
+            return
+        # Never override a locked exercise with "unknown"
+        if self._exercise_lock and exercise == "unknown":
+            return
+        self.exercise = exercise
+        self._rep_counter.set_exercise(exercise)
+        if exercise != "unknown":
+            self._exercise_lock = True   # lock once we have a real exercise
 
     def analyse(self, pose: PoseFrame, exercise) -> FormFeedback:
         ex_key = exercise.value if hasattr(exercise, "value") else str(exercise)
