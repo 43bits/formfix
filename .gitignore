@@ -155,5 +155,6 @@ yarn-error.*
 /ios
 /android
 
-
 VisionAI_Build_Guide.md
+
+/extra
